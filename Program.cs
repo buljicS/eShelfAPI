@@ -1,3 +1,6 @@
+using eShelfAPI.Extensions;
+using DotNetEnv;
+
 namespace eShelfAPI
 {
     public class Program
@@ -6,28 +9,16 @@ namespace eShelfAPI
         {
             var builder = WebApplication.CreateBuilder(args);
 
-            // Add services to the container.
+            Env.Load("./.env");
+            builder.Configuration
+                .AddJsonFile($"appsettings.json", optional: false)
+                .AddEnvironmentVariables();
 
-            builder.Services.AddControllers();
-            // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
-            builder.Services.AddEndpointsApiExplorer();
-            builder.Services.AddSwaggerGen();
+            builder.Services.InjectServices(builder.Configuration);
 
             var app = builder.Build();
 
-            // Configure the HTTP request pipeline.
-            if (app.Environment.IsDevelopment())
-            {
-                app.UseSwagger();
-                app.UseSwaggerUI();
-            }
-
-            app.UseHttpsRedirection();
-
-            app.UseAuthorization();
-
-
-            app.MapControllers();
+            app.InjectMiddlewares();
 
             app.Run();
         }
